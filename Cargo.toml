@@ -1,0 +1,24 @@
+[package]
+name = "pdf-reader-mcp-server"
+version = "0.1.0"
+edition = "2024"
+description = "A Rust-based MCP Server that provides PDF reading capabilities as a Kiro Power"
+license = "MIT"
+
+[dependencies]
+rmcp = { version = "0.12", features = ["server", "transport-io"] }
+lopdf = "0.38"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+schemars = "1"
+thiserror = "2"
+anyhow = "1"
+
+[dev-dependencies]
+proptest = "1"
+tempfile = "3"
+
+[[bin]]
+name = "generate_fixtures"
+path = "tests/fixtures/generate_fixtures.rs"

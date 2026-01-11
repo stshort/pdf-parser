@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "pdf-reader": {
+      "command": "pdf-reader-mcp-server",
+      "args": [],
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
