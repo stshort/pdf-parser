@@ -21,11 +21,19 @@ Use for small documents (< 10 pages) where you need all content.
 - Simple summarization tasks
 
 ### read_pdf_page
-Use for targeted extraction or distributed processing.
+Use for targeted extraction of a single page.
 
-- Large documents where full extraction would exceed context
-- When you only need specific sections
-- Distributed parsing with subagents
+- When you need a specific page by number
+- Quick spot-checks of document content
+- When processing one page at a time
+
+### read_pdf_pages
+Use for extracting a range of pages efficiently.
+
+- Medium to large documents where you need a section (e.g., pages 5-15)
+- Distributed parsing with subagents - assign page ranges to each
+- More efficient than multiple `read_pdf_page` calls for consecutive pages
+- Ideal for chunking large documents into manageable sections
 
 ## Path Requirements
 
@@ -46,8 +54,17 @@ For documents over 20-30 pages:
 
 1. Don't use `read_pdf` - it may exceed context limits
 2. Use `get_pdf_info` first to get page count
-3. Use `read_pdf_page` iteratively or distribute to subagents
+3. Use `read_pdf_pages` to extract sections, or distribute ranges to subagents
 4. See `distributed-parsing.md` for strategies
+
+Example workflow for a 100-page document:
+```
+1. get_pdf_info → page_count: 100
+2. read_pdf_pages(1, 25)   → first quarter
+3. read_pdf_pages(26, 50)  → second quarter
+4. read_pdf_pages(51, 75)  → third quarter
+5. read_pdf_pages(76, 100) → final quarter
+```
 
 ## Error Recovery
 
@@ -63,6 +80,7 @@ Password-protected PDFs will return an encryption error. There's no workaround w
 
 ## Performance Tips
 
+- Use `read_pdf_pages` instead of multiple `read_pdf_page` calls for consecutive pages
 - Batch your page reads when possible
 - Use subagents for parallel processing of large documents
 - Cache `get_pdf_info` results if making multiple calls to same document
