@@ -184,4 +184,11 @@ The server returns descriptive error messages for common failure scenarios:
 
 ## License
 
-See LICENSE file for details.
+MIT
+
+## Steering Guides
+
+This power includes steering files for optimal usage:
+
+- `steering/best-practices.md` - General usage guidelines and tips
+- `steering/distributed-parsing.md` - Strategies for processing large PDFs with subagents
