@@ -24,11 +24,11 @@ Main Agent:
   1. Call get_pdf_info → page_count: 50
   2. Spawn 5 subagents, each handling 10 pages
   
-Subagent 1: read_pdf_page for pages 1-10
-Subagent 2: read_pdf_page for pages 11-20
-Subagent 3: read_pdf_page for pages 21-30
-Subagent 4: read_pdf_page for pages 31-40
-Subagent 5: read_pdf_page for pages 41-50
+Subagent 1: read_pdf_pages(start_page=1, end_page=10)
+Subagent 2: read_pdf_pages(start_page=11, end_page=20)
+Subagent 3: read_pdf_pages(start_page=21, end_page=30)
+Subagent 4: read_pdf_pages(start_page=31, end_page=40)
+Subagent 5: read_pdf_pages(start_page=41, end_page=50)
 
 Main Agent:
   3. Collect and synthesize results
@@ -38,6 +38,8 @@ Main Agent:
 
 ```
 Extract and summarize content from pages {start} to {end} of the PDF at {file_path}.
+
+Use read_pdf_pages(file_path, start_page={start}, end_page={end}) to get all pages in one call.
 
 For each page, identify:
 - Key topics and concepts

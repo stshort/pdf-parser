@@ -78,6 +78,40 @@ Extract text content from a specific page of a PDF file.
 
 ---
 
+### read_pdf_pages
+
+Extract text content from a range of pages in a PDF file. Ideal for distributed parsing workflows where subagents process different sections of a document.
+
+**Parameters:**
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| file_path | string | Yes | Absolute path to the PDF file |
+| start_page | integer | Yes | Start page number (1-indexed, inclusive) |
+| end_page | integer | Yes | End page number (1-indexed, inclusive) |
+
+**Example:**
+```json
+{
+  "file_path": "/path/to/document.pdf",
+  "start_page": 1,
+  "end_page": 10
+}
+```
+
+**Response:**
+```json
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "Text content from pages 1-10..."
+    }
+  ]
+}
+```
+
+---
+
 ### get_pdf_info
 
 Get PDF document metadata and page count.
@@ -144,6 +178,7 @@ Add the following to your `.kiro/settings/mcp.json` file:
       "autoApprove": [
         "read_pdf",
         "read_pdf_page",
+        "read_pdf_pages",
         "get_pdf_info"
       ]
     }

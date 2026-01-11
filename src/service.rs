@@ -29,6 +29,17 @@ pub struct ReadPdfPageParams {
     pub page: u32,
 }
 
+/// Parameters for the read_pdf_pages tool (page range)
+#[derive(Debug, Deserialize, JsonSchema)]
+pub struct ReadPdfPagesParams {
+    /// Absolute path to the PDF file (relative paths are not supported)
+    pub file_path: String,
+    /// Start page number (1-indexed, inclusive)
+    pub start_page: u32,
+    /// End page number (1-indexed, inclusive)
+    pub end_page: u32,
+}
+
 /// Parameters for the get_pdf_info tool
 #[derive(Debug, Deserialize, JsonSchema)]
 pub struct GetPdfInfoParams {
@@ -72,6 +83,35 @@ fn read_pdf_page_schema() -> Arc<serde_json::Map<String, serde_json::Value>> {
         },
         "required": ["file_path", "page"],
         "title": "ReadPdfPageParams"
+    });
+    Arc::new(schema.as_object().unwrap().clone())
+}
+
+/// Create a custom schema for read_pdf_pages (page range) without $schema field
+fn read_pdf_pages_schema() -> Arc<serde_json::Map<String, serde_json::Value>> {
+    let schema = json!({
+        "type": "object",
+        "description": "Parameters for the read_pdf_pages tool",
+        "properties": {
+            "file_path": {
+                "type": "string",
+                "description": "Absolute path to the PDF file (relative paths are not supported)"
+            },
+            "start_page": {
+                "type": "integer",
+                "description": "Start page number (1-indexed, inclusive)",
+                "minimum": 1,
+                "format": "uint32"
+            },
+            "end_page": {
+                "type": "integer",
+                "description": "End page number (1-indexed, inclusive)",
+                "minimum": 1,
+                "format": "uint32"
+            }
+        },
+        "required": ["file_path", "start_page", "end_page"],
+        "title": "ReadPdfPagesParams"
     });
     Arc::new(schema.as_object().unwrap().clone())
 }
@@ -129,6 +169,21 @@ impl PdfReaderService {
         Ok(CallToolResult::success(vec![Content::text(text)]))
     }
 
+    /// Extract text content from a range of pages in a PDF file
+    #[tool(description = "Extract text content from a range of pages in a PDF file (inclusive). Ideal for distributed parsing workflows.", input_schema = read_pdf_pages_schema())]
+    async fn read_pdf_pages(
+        &self,
+        params: Parameters<ReadPdfPagesParams>,
+    ) -> Result<CallToolResult, McpError> {
+        let text = PdfReader::extract_page_range_text(
+            &params.0.file_path,
+            params.0.start_page,
+            params.0.end_page,
+        )
+        .map_err(McpError::from)?;
+        Ok(CallToolResult::success(vec![Content::text(text)]))
+    }
+
     /// Get PDF document metadata and page count
     #[tool(description = "Get PDF document metadata and page count", input_schema = get_pdf_info_schema())]
     async fn get_pdf_info(
@@ -160,6 +215,7 @@ impl rmcp::ServerHandler for PdfReaderService {
             instructions: Some(
                 "PDF Reader MCP Server provides tools for extracting text and metadata from PDF files. \
                 Use 'read_pdf' to extract all text, 'read_pdf_page' to extract text from a specific page, \
+                'read_pdf_pages' to extract text from a range of pages (ideal for distributed parsing), \
                 or 'get_pdf_info' to get document metadata and page count.".to_string()
             ),
         }

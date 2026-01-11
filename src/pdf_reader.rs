@@ -109,6 +109,56 @@ impl PdfReader {
         Ok(text)
     }
 
+    /// Extract text from a range of pages (1-indexed, inclusive)
+    pub fn extract_page_range_text(file_path: &str, start_page: u32, end_page: u32) -> Result<String, PdfError> {
+        let doc = Self::load_document(file_path)?;
+        
+        let pages = doc.get_pages();
+        let page_count = pages.len();
+        
+        if start_page < 1 || start_page as usize > page_count {
+            return Err(PdfError::PageNotFound(start_page, page_count));
+        }
+        
+        if end_page < 1 || end_page as usize > page_count {
+            return Err(PdfError::PageNotFound(end_page, page_count));
+        }
+        
+        if start_page > end_page {
+            return Err(PdfError::ParseError(format!(
+                "Invalid page range: start_page ({}) must be <= end_page ({})",
+                start_page, end_page
+            )));
+        }
+        
+        let mut all_text = String::new();
+        let mut skipped_pages = Vec::new();
+        
+        for page_num in start_page..=end_page {
+            match doc.extract_text(&[page_num]) {
+                Ok(text) => {
+                    if !all_text.is_empty() && !text.is_empty() {
+                        all_text.push('\n');
+                    }
+                    all_text.push_str(&text);
+                }
+                Err(_) => {
+                    skipped_pages.push(page_num);
+                }
+            }
+        }
+        
+        if !skipped_pages.is_empty() {
+            all_text.push_str(&format!(
+                "\n\n[Note: {} page(s) could not be extracted due to font encoding issues: {:?}]",
+                skipped_pages.len(),
+                skipped_pages
+            ));
+        }
+        
+        Ok(all_text)
+    }
+
     /// Get PDF metadata and page count
     pub fn get_info(file_path: &str) -> Result<PdfInfo, PdfError> {
         let doc = Self::load_document(file_path)?;
