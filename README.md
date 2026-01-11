@@ -16,6 +16,7 @@ A Rust-based MCP (Model Context Protocol) server that provides PDF reading capab
 |------|-------------|
 | `read_pdf` | Extract all text content from a PDF file |
 | `read_pdf_page` | Extract text from a specific page (1-indexed) |
+| `read_pdf_pages` | Extract text from a range of pages (1-indexed, inclusive) |
 | `get_pdf_info` | Get document metadata and page count |
 
 All tools require an absolute file path.
@@ -47,7 +48,7 @@ Add to `.kiro/settings/mcp.json`:
       "command": "/path/to/pdf-reader-mcp-server",
       "args": [],
       "disabled": false,
-      "autoApprove": ["read_pdf", "read_pdf_page", "get_pdf_info"]
+      "autoApprove": ["read_pdf", "read_pdf_page", "read_pdf_pages", "get_pdf_info"]
     }
   }
 }
@@ -73,6 +74,16 @@ This project includes a `power/` directory for use as a Kiro Power. See `power/P
 {
   "file_path": "/home/user/documents/report.pdf",
   "page": 3
+}
+```
+
+### Extract page range
+
+```json
+{
+  "file_path": "/home/user/documents/report.pdf",
+  "start_page": 1,
+  "end_page": 10
 }
 ```
 
